@@ -975,16 +975,16 @@ async def get_chat_messages(connection_id: int):
     return {"messages": mock_messages}
 
 @app.post("/api/orcid/sync")
-async def sync_orcid_data(orcid_data: dict):
+async def sync_orcid_data(orcid_request: ORCIDSyncRequest):
     """Sync researcher data from ORCID"""
     try:
-        orcid_id = orcid_data.get("orcid_id")
+        orcid_id = orcid_request.orcid_id
         if not orcid_id:
             raise HTTPException(status_code=400, detail="ORCID ID is required")
         
         orcid_service = ORCIDService()
         
-        # Fetch profile and publications
+        # Fetch real profile and publications
         profile = await orcid_service.get_researcher_profile(orcid_id)
         publications = await orcid_service.get_publications(orcid_id)
         
