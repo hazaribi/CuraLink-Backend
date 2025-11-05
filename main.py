@@ -528,16 +528,17 @@ async def create_meeting_request(request: MeetingRequest):
         
         # If researcher not registered or is external, route to admin
         if is_external or not researcher_registered:
+            import datetime
             admin_request = {
-                "id": f"req_{len(request.patient_name)}_{request.researcher_id}",
+                "id": f"req_{len(global_admin_requests) + 1}_{request.researcher_id}",
                 "type": "external_expert_contact",
                 "patient_name": request.patient_name,
                 "patient_email": request.email,
                 "expert_name": f"Expert ID: {request.researcher_id}",
-                "message": request.message,
+                "message": request.message or "Patient requesting meeting",
                 "urgency": request.urgency,
                 "status": "pending_admin_review",
-                "created_at": "2024-01-15T10:00:00Z"
+                "created_at": datetime.datetime.now().isoformat()
             }
             
             print(f"Admin request created: {admin_request}")
