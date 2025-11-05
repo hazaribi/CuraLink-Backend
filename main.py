@@ -18,9 +18,9 @@ app = FastAPI(title="CuraLink API", version="1.0.0")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for deployment
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,  # Set to False when using allow_origins=["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -120,6 +120,10 @@ global_admin_requests = []
 @app.get("/")
 async def root():
     return {"message": "CuraLink API is running"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 @app.get("/api/admin/test")
 async def test_admin():
@@ -973,6 +977,10 @@ async def get_chat_messages(connection_id: int):
         }
     ]
     return {"messages": mock_messages}
+
+@app.options("/api/orcid/sync")
+async def orcid_sync_options():
+    return {"message": "OK"}
 
 @app.post("/api/orcid/sync")
 async def sync_orcid_data(orcid_request: ORCIDSyncRequest):
