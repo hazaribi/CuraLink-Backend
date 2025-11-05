@@ -598,15 +598,18 @@ async def create_meeting_request(request: MeetingRequest):
         if is_external or not researcher_registered:
             import datetime
             admin_request = {
-                "id": f"req_{len(global_admin_requests) + 1}_{request.researcher_id}",
                 "type": "external_expert_contact",
                 "patient_name": request.patient_name,
                 "patient_email": request.email,
+                "phone": request.phone,
+                "preferred_date": request.preferred_date,
+                "preferred_time": request.preferred_time,
+                "meeting_type": request.meeting_type,
                 "expert_name": f"Expert ID: {request.researcher_id}",
+                "expert_id": request.researcher_id,
                 "message": request.message or "Patient requesting meeting",
                 "urgency": request.urgency,
-                "status": "pending_admin_review",
-                "created_at": datetime.datetime.now().isoformat()
+                "status": "pending_admin_review"
             }
             
             print(f"Admin request created: {admin_request}")
@@ -615,12 +618,19 @@ async def create_meeting_request(request: MeetingRequest):
                 try:
                     result = supabase.table("admin_requests").insert(admin_request).execute()
                     print(f"Supabase insert result: {result}")
+                    return {
+                        "message": "Request forwarded to admin - researcher not on platform", 
+                        "type": "admin_request", 
+                        "data": result.data[0] if result.data else admin_request
+                    }
                 except Exception as e:
                     print(f"Supabase insert failed: {e}")
-            else:
-                # Store in global list when Supabase is not available
-                global_admin_requests.append(admin_request)
-                print(f"Added to global requests. Total: {len(global_admin_requests)}")
+            
+            # Store in global list when Supabase is not available
+            admin_request["id"] = f"req_{len(global_admin_requests) + 1}_{request.researcher_id}"
+            admin_request["created_at"] = datetime.datetime.now().isoformat()
+            global_admin_requests.append(admin_request)
+            print(f"Added to global requests. Total: {len(global_admin_requests)}")
             
             return {
                 "message": "Request forwarded to admin - researcher not on platform", 
