@@ -2,7 +2,6 @@ import os
 from google import genai
 from typing import List, Dict, Any
 import json
-import traceback
 
 class AIService:
     def __init__(self):
@@ -27,9 +26,11 @@ class AIService:
                 # It's a question - provide medical advice
                 prompt = f"Answer this medical question in simple terms for a patient: '{condition_text}'. Be helpful but remind them to consult healthcare professionals. Keep response under 100 words."
                 print(f"Sending prompt to Gemini: {prompt}")
-                response = self.model.generate_content(prompt)
-                print(f"Gemini response object: {type(response)}")
-                print(f"Gemini response text: {getattr(response, 'text', 'No text attribute')}")
+                response = self.client.models.generate_content(
+                    model='models/gemini-1.5-flash',
+                    contents=[{'parts': [{'text': prompt}]}]
+                )
+                print(f"Gemini response: {response}")
                 
                 if hasattr(response, 'text') and response.text:
                     answer = response.text.strip()
@@ -44,9 +45,12 @@ class AIService:
                 # Extract condition
                 prompt = f"Extract the primary medical condition from this text: '{condition_text}'. Return only the main condition name in simple terms."
                 print(f"Sending prompt to Gemini: {prompt}")
-                response = self.model.generate_content(prompt)
-                print(f"Gemini raw response: {response}")
-                primary_condition = response.text.strip() if response.text else condition_text
+                response = self.client.models.generate_content(
+                    model='models/gemini-1.5-flash',
+                    contents=[{'parts': [{'text': prompt}]}]
+                )
+                print(f"Gemini response: {response}")
+                primary_condition = response.text.strip() if response and response.text else condition_text
                 print(f"Extracted condition: {primary_condition}")
                 return {
                     "primaryCondition": primary_condition,
@@ -70,7 +74,10 @@ class AIService:
         """Generate patient-friendly trial summary"""
         try:
             prompt = f"Explain this clinical trial in simple terms for patients: {trial_data['title']} - {trial_data.get('description', '')}. Keep it under 200 words and be encouraging but honest."
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model='models/gemini-1.5-flash',
+                contents=[{'parts': [{'text': prompt}]}]
+            )
             return response.text if response.text else f"This trial studies {trial_data['title']}. Contact the research team for more details."
         except Exception as e:
             return f"This trial studies {trial_data['title']}. Contact the research team for more details."
@@ -83,14 +90,20 @@ class AIService:
             if 'question' in researcher_profile:
                 # Answer specific question
                 prompt = f"Answer this research question: '{researcher_profile['question']}' for a researcher with specialties: {researcher_profile.get('specialties', [])} and interests: {researcher_profile.get('research_interests', [])}. Provide helpful advice in 2-3 sentences."
-                response = self.model.generate_content(prompt)
+                response = self.client.models.generate_content(
+                    model='models/gemini-1.5-flash',
+                    contents=[{'parts': [{'text': prompt}]}]
+                )
                 answer = response.text.strip() if response.text else f"I can help with questions about {researcher_profile.get('specialties', ['research'])}. What specific challenge are you facing?"
                 print(f"Research AI response: {answer}")
                 return [answer]
             else:
                 # General suggestions
                 prompt = f"Suggest 3 research collaboration ideas for a researcher with specialties: {researcher_profile.get('specialties', [])} and interests: {researcher_profile.get('research_interests', [])}. List them as bullet points."
-                response = self.model.generate_content(prompt)
+                response = self.client.models.generate_content(
+                    model='models/gemini-1.5-flash',
+                    contents=[{'parts': [{'text': prompt}]}]
+                )
                 if response.text:
                     suggestions = [s.strip('- •').strip() for s in response.text.split('\n') if s.strip()]
                     print(f"Research suggestions: {suggestions}")
