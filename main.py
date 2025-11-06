@@ -6,13 +6,15 @@ import os
 import httpx
 import json
 from dotenv import load_dotenv
+
+# Load environment variables first
+load_dotenv()
+
 from supabase import create_client, Client
 from external_search import ExternalExpertSearch
 from admin_requests import AdminRequestHandler
 from orcid_service import ORCIDService
 from ai_service import ai_service
-
-load_dotenv()
 
 app = FastAPI(title="CuraLink API", version="1.0.0")
 

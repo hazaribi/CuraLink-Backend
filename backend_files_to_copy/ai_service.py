@@ -145,43 +145,27 @@ class AIService:
                 "Content-Type": "application/json"
             }
             
-            print(f"API Key present: {bool(self.api_key)}")
-            print(f"API Key length: {len(self.api_key) if self.api_key else 0}")
-            print(f"Calling Gemini API with prompt: {prompt[:50]}...")
-            print(f"URL: {url[:80]}...")
-            
             response = requests.post(url, json=payload, headers=headers, timeout=15)
-            
-            print(f"Response status: {response.status_code}")
-            print(f"Response headers: {dict(response.headers)}")
             
             if response.status_code == 200:
                 data = response.json()
-                print(f"Response data keys: {list(data.keys())}")
                 
                 if 'candidates' in data and len(data['candidates']) > 0:
                     candidate = data['candidates'][0]
-                    print(f"Candidate keys: {list(candidate.keys())}")
                     
                     if 'content' in candidate and 'parts' in candidate['content']:
                         content = candidate['content']['parts'][0]['text']
-                        print(f"SUCCESS: Gemini API response: {content[:100]}...")
                         return content.strip()
                     else:
-                        print(f"ERROR: Unexpected candidate structure: {candidate}")
                         return None
                 else:
-                    print(f"ERROR: No candidates in response: {data}")
                     return None
             else:
                 print(f"ERROR: API call failed with status {response.status_code}")
-                print(f"ERROR: Response text: {response.text}")
                 return None
                 
         except Exception as e:
             print(f"EXCEPTION: API call failed: {e}")
-            import traceback
-            print(f"TRACEBACK: {traceback.format_exc()}")
             return None
 
 ai_service = AIService()
