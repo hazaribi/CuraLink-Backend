@@ -2,6 +2,7 @@ import os
 from google import genai
 from typing import List, Dict, Any
 import json
+import traceback
 
 class AIService:
     def __init__(self):
