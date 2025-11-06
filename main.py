@@ -1043,6 +1043,15 @@ async def get_research_suggestions(researcher_profile: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/ai/test")
+async def test_ai():
+    """Test if AI service is working"""
+    try:
+        result = ai_service.analyze_condition("Hello, test question")
+        return {"success": True, "test_result": result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))

@@ -36,10 +36,17 @@ class AIService:
                 }
         except Exception as e:
             print(f"AI analysis failed: {e}")
-            return {
-                "primaryCondition": f"I can help you with medical questions about {condition_text}. What would you like to know?",
-                "identifiedConditions": [condition_text]
-            }
+            # Simple response without mentioning the input
+            if '?' in condition_text or condition_text.lower().startswith(('what', 'how', 'why', 'when', 'where', 'can', 'should', 'is', 'are', 'hi', 'hello', 'help')):
+                return {
+                    "primaryCondition": "I'm here to help with medical questions and finding researchers. What specific condition or research area interests you?",
+                    "identifiedConditions": [condition_text]
+                }
+            else:
+                return {
+                    "primaryCondition": condition_text,
+                    "identifiedConditions": [condition_text]
+                }
     
     def generate_trial_summary(self, trial_data: Dict) -> str:
         """Generate patient-friendly trial summary"""
@@ -74,6 +81,10 @@ class AIService:
                     return ["Consider interdisciplinary collaborations", "Explore international partnerships", "Join research networks in your field"]
         except Exception as e:
             print(f"Research AI failed: {e}")
-            return [f"I can help with research questions about {researcher_profile.get('specialties', ['your field'])}. What would you like to know?"]
+            specialties = researcher_profile.get('specialties', [])
+            if specialties:
+                return [f"I can help with research in {', '.join(specialties)}. What specific research challenge are you facing?"]
+            else:
+                return ["I can help with research collaboration and academic questions. What would you like to know?"]
 
 ai_service = AIService()
