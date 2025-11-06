@@ -11,7 +11,7 @@ class AIService:
         else:
             print(f"Configuring Gemini with API key: {api_key[:10]}...")
             genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+            self.model = genai.GenerativeModel('gemini-1.5-flash')
     
     def analyze_condition(self, condition_text: str) -> Dict[str, Any]:
         """Analyze patient condition input and extract structured data or answer questions"""
