@@ -54,7 +54,6 @@ class AIService:
                 }
         except Exception as e:
             print(f"AI analysis failed: {e}")
-            print(f"Full traceback: {traceback.format_exc()}")
             # Simple response without mentioning the input
             if '?' in condition_text or condition_text.lower().startswith(('what', 'how', 'why', 'when', 'where', 'can', 'should', 'is', 'are', 'hi', 'hello', 'help')):
                 return {
@@ -100,7 +99,6 @@ class AIService:
                     return ["Consider interdisciplinary collaborations", "Explore international partnerships", "Join research networks in your field"]
         except Exception as e:
             print(f"Research AI failed: {e}")
-            print(f"Full traceback: {traceback.format_exc()}")
             specialties = researcher_profile.get('specialties', [])
             if specialties:
                 return [f"I can help with research in {', '.join(specialties)}. What specific research challenge are you facing?"]
