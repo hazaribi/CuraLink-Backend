@@ -10,6 +10,7 @@ from supabase import create_client, Client
 from external_search import ExternalExpertSearch
 from admin_requests import AdminRequestHandler
 from orcid_service import ORCIDService
+from ai_service import ai_service
 
 load_dotenv()
 
@@ -73,6 +74,10 @@ class MeetingRequest(BaseModel):
 
 class ORCIDSyncRequest(BaseModel):
     orcid_id: str
+
+class AIAnalysisRequest(BaseModel):
+    text: str
+    analysis_type: str  # 'condition', 'trial_summary', 'collaboration'
 
 class ConnectionRequest(BaseModel):
     from_researcher_id: str
@@ -1010,6 +1015,33 @@ async def sync_orcid_data(orcid_request: ORCIDSyncRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"ORCID sync failed: {str(e)}")
+
+@app.post("/api/ai/analyze-condition")
+async def analyze_condition(request: AIAnalysisRequest):
+    """AI-powered condition analysis"""
+    try:
+        result = ai_service.analyze_condition(request.text)
+        return {"success": True, "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ai/trial-summary")
+async def generate_trial_summary(trial_data: dict):
+    """Generate AI summary for clinical trial"""
+    try:
+        summary = ai_service.generate_trial_summary(trial_data)
+        return {"success": True, "summary": summary}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ai/research-suggestions")
+async def get_research_suggestions(researcher_profile: dict):
+    """Get AI-powered research collaboration suggestions"""
+    try:
+        suggestions = ai_service.suggest_research_collaborations(researcher_profile)
+        return {"success": True, "suggestions": suggestions}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
