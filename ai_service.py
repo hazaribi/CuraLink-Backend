@@ -5,19 +5,30 @@ import json
 
 class AIService:
     def __init__(self):
-        genai.configure(api_key=os.getenv("GOOGLE_AI_API_KEY"))
-        self.model = genai.GenerativeModel('gemini-pro')
+        api_key = os.getenv("GOOGLE_AI_API_KEY")
+        if not api_key:
+            print("WARNING: GOOGLE_AI_API_KEY not found!")
+            self.model = None
+        else:
+            print(f"Configuring Gemini with API key: {api_key[:10]}...")
+            genai.configure(api_key=api_key)
+            self.model = genai.GenerativeModel('gemini-pro')
     
     def analyze_condition(self, condition_text: str) -> Dict[str, Any]:
         """Analyze patient condition input and extract structured data or answer questions"""
         try:
             print(f"Analyzing condition: {condition_text}")
             
+            if not self.model:
+                raise Exception("Gemini model not configured - API key missing")
+            
             # Check if it's a question or condition statement
             if '?' in condition_text or condition_text.lower().startswith(('what', 'how', 'why', 'when', 'where', 'can', 'should', 'is', 'are', 'hi', 'hello', 'help')):
                 # It's a question - provide medical advice
                 prompt = f"Answer this medical question in simple terms for a patient: '{condition_text}'. Be helpful but remind them to consult healthcare professionals. Keep response under 100 words."
+                print(f"Sending prompt to Gemini: {prompt}")
                 response = self.model.generate_content(prompt)
+                print(f"Gemini raw response: {response}")
                 answer = response.text.strip() if response.text else "I can help you with medical questions. Please consult with your healthcare provider for specific medical advice."
                 print(f"AI response: {answer}")
                 return {
@@ -27,7 +38,9 @@ class AIService:
             else:
                 # Extract condition
                 prompt = f"Extract the primary medical condition from this text: '{condition_text}'. Return only the main condition name in simple terms."
+                print(f"Sending prompt to Gemini: {prompt}")
                 response = self.model.generate_content(prompt)
+                print(f"Gemini raw response: {response}")
                 primary_condition = response.text.strip() if response.text else condition_text
                 print(f"Extracted condition: {primary_condition}")
                 return {
