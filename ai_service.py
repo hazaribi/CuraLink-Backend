@@ -1,5 +1,5 @@
 import os
-import google.generativeai as genai
+from google import genai
 from typing import List, Dict, Any
 import json
 
@@ -8,19 +8,18 @@ class AIService:
         api_key = os.getenv("GOOGLE_AI_API_KEY")
         if not api_key:
             print("WARNING: GOOGLE_AI_API_KEY not found!")
-            self.model = None
+            self.client = None
         else:
             print(f"Configuring Gemini with API key: {api_key[:10]}...")
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+            self.client = genai.Client(api_key=api_key)
     
     def analyze_condition(self, condition_text: str) -> Dict[str, Any]:
         """Analyze patient condition input and extract structured data or answer questions"""
         try:
             print(f"Analyzing condition: {condition_text}")
             
-            if not self.model:
-                raise Exception("Gemini model not configured - API key missing")
+            if not self.client:
+                raise Exception("Gemini client not configured - API key missing")
             
             # Check if it's a question or condition statement
             if '?' in condition_text or condition_text.lower().startswith(('what', 'how', 'why', 'when', 'where', 'can', 'should', 'is', 'are', 'hi', 'hello', 'help')):
@@ -28,9 +27,14 @@ class AIService:
                 prompt = f"Answer this medical question in simple terms for a patient: '{condition_text}'. Be helpful but remind them to consult healthcare professionals. Keep response under 100 words."
                 print(f"Sending prompt to Gemini: {prompt}")
                 response = self.model.generate_content(prompt)
-                print(f"Gemini raw response: {response}")
-                answer = response.text.strip() if response.text else "I can help you with medical questions. Please consult with your healthcare provider for specific medical advice."
-                print(f"AI response: {answer}")
+                print(f"Gemini response object: {type(response)}")
+                print(f"Gemini response text: {getattr(response, 'text', 'No text attribute')}")
+                
+                if hasattr(response, 'text') and response.text:
+                    answer = response.text.strip()
+                else:
+                    answer = "I can help you with medical questions. Please consult with your healthcare provider for specific medical advice."
+                print(f"Final AI response: {answer}")
                 return {
                     "primaryCondition": answer,
                     "identifiedConditions": [condition_text]
@@ -49,6 +53,7 @@ class AIService:
                 }
         except Exception as e:
             print(f"AI analysis failed: {e}")
+            print(f"Full traceback: {traceback.format_exc()}")
             # Simple response without mentioning the input
             if '?' in condition_text or condition_text.lower().startswith(('what', 'how', 'why', 'when', 'where', 'can', 'should', 'is', 'are', 'hi', 'hello', 'help')):
                 return {
@@ -94,6 +99,7 @@ class AIService:
                     return ["Consider interdisciplinary collaborations", "Explore international partnerships", "Join research networks in your field"]
         except Exception as e:
             print(f"Research AI failed: {e}")
+            print(f"Full traceback: {traceback.format_exc()}")
             specialties = researcher_profile.get('specialties', [])
             if specialties:
                 return [f"I can help with research in {', '.join(specialties)}. What specific research challenge are you facing?"]
