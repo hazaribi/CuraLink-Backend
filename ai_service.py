@@ -70,11 +70,25 @@ class AIService:
     def generate_trial_summary(self, trial_data: Dict) -> str:
         """Generate patient-friendly trial summary"""
         try:
-            prompt = f"Explain this clinical trial in simple terms for patients: {trial_data['title']} - {trial_data.get('description', '')}. Keep it under 200 words and be encouraging but honest."
+            prompt = f"""Create a clear, patient-friendly summary of this clinical trial:
+            
+Title: {trial_data['title']}
+Phase: {trial_data.get('phase', 'Unknown')}
+Status: {trial_data.get('status', 'Unknown')}
+Description: {trial_data.get('description', '')}
+            
+Format your response as:
+1. What this trial is studying (1-2 sentences)
+2. Who might be eligible (1 sentence)
+3. Key benefits or goals (1 sentence)
+4. Next steps for interested patients (1 sentence)
+            
+Use simple language, be encouraging but honest, and keep under 150 words."""
+            
             response = self._call_gemini_api(prompt)
-            return response if response else f"This trial studies {trial_data['title']}. Contact the research team for more details."
+            return response if response else f"This {trial_data.get('phase', '')} trial is studying {trial_data['title']}. Contact the research team to learn about eligibility and participation details."
         except Exception as e:
-            return f"This trial studies {trial_data['title']}. Contact the research team for more details."
+            return f"This {trial_data.get('phase', '')} trial is studying {trial_data['title']}. Contact the research team to learn about eligibility and participation details."
     
     def suggest_research_collaborations(self, researcher_profile: Dict) -> List[str]:
         """Suggest collaboration opportunities for researchers"""
