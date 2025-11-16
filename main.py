@@ -642,72 +642,7 @@ async def get_collaborators(specialty: Optional[str] = None, research_interest: 
             print(f"Database query failed: {e}")
     
     return {"collaborators": collaborators}
-        
-        # Fallback to enhanced mock data
-        mock_collaborators = [
-            {
-                "id": 1,
-                "name": "Dr. Emily Rodriguez",
-                "specialty": "Immunology",
-                "institution": "Stanford University",
-                "research_interests": ["Immunotherapy", "Clinical AI"],
-                "publications_count": 45,
-                "available_for_collaboration": True,
-                "recentPublications": [{"title": "AI-Driven Immunotherapy", "journal": "Nature", "date": "2024-01-15"}]
-            },
-            {
-                "id": 2,
-                "name": "Dr. James Wilson",
-                "specialty": "Oncology",
-                "institution": "Mayo Clinic",
-                "research_interests": ["Gene Therapy", "Drug Discovery"],
-                "publications_count": 67,
-                "available_for_collaboration": True,
-                "recentPublications": [{"title": "Gene Therapy Advances", "journal": "NEJM", "date": "2024-01-10"}]
-            },
-            {
-                "id": 3,
-                "name": "Dr. Sarah Chen",
-                "specialty": "Neurology",
-                "institution": "Johns Hopkins",
-                "research_interests": ["Precision Medicine", "Diagnostics"],
-                "publications_count": 52,
-                "available_for_collaboration": True,
-                "recentPublications": [{"title": "Precision Neurology", "journal": "Lancet", "date": "2024-01-05"}]
-            },
-            {
-                "id": 4,
-                "name": "Dr. Michael Park",
-                "specialty": "Cardiology",
-                "institution": "Cleveland Clinic",
-                "research_interests": ["Heart Disease", "AI Imaging"],
-                "publications_count": 38,
-                "available_for_collaboration": True,
-                "recentPublications": [{"title": "AI Cardiac Imaging", "journal": "Circulation", "date": "2024-01-12"}]
-            },
-            {
-                "id": 5,
-                "name": "Dr. Lisa Thompson",
-                "specialty": "Psychiatry",
-                "institution": "Harvard Medical School",
-                "research_interests": ["Depression", "Mental Health"],
-                "publications_count": 29,
-                "available_for_collaboration": True,
-                "recentPublications": [{"title": "Digital Mental Health", "journal": "JAMA Psychiatry", "date": "2024-01-08"}]
-            }
-        ]
-        
-        # Apply filters to mock data
-        if specialty:
-            mock_collaborators = [c for c in mock_collaborators if specialty.lower() in c["specialty"].lower()]
-        if research_interest:
-            mock_collaborators = [c for c in mock_collaborators if any(research_interest.lower() in interest.lower() for interest in c["research_interests"])]
-        
-        return {"collaborators": mock_collaborators}
-        
-    except Exception as e:
-        print(f"Error fetching collaborators: {e}")
-        return {"collaborators": []}
+
 
 @app.post("/api/meeting-requests")
 async def create_meeting_request(request: MeetingRequest):
