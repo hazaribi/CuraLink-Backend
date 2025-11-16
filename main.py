@@ -15,6 +15,7 @@ from external_search import ExternalExpertSearch
 from admin_requests import AdminRequestHandler
 from orcid_service import ORCIDService
 from ai_service import ai_service
+from utils import sanitize_input, validate_email, validate_orcid
 
 app = FastAPI(title="CuraLink API", version="1.0.0")
 
@@ -140,12 +141,16 @@ async def test_admin():
 async def create_patient_profile(profile: PatientProfile):
     """Create or update patient profile"""
     try:
+        # Sanitize inputs
+        profile.condition = sanitize_input(profile.condition)
+        profile.location = sanitize_input(profile.location)
+        
         if supabase:
             result = supabase.table("patient_profiles").insert(profile.dict()).execute()
             return {"message": "Profile created successfully", "data": result.data}
         return {"message": "Profile saved locally", "data": profile.dict()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Failed to create profile")
 
 @app.post("/api/researchers/profile")
 async def create_researcher_profile(profile: ResearcherProfile):
@@ -386,7 +391,8 @@ async def get_publications(keyword: Optional[str] = None, journal: Optional[str]
                         publications = []
                         
                         try:
-                            root = ET.fromstring(details_response.text)
+                            parser = ET.XMLParser(resolve_entities=False)
+                            root = ET.fromstring(details_response.text, parser)
                             articles = root.findall(".//PubmedArticle")
                             
                             for i, article in enumerate(articles[:5]):
@@ -1015,8 +1021,12 @@ async def sync_orcid_data(orcid_request: ORCIDSyncRequest):
         
     except HTTPException:
         raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid ORCID data: {str(e)}")
+    except ConnectionError as e:
+        raise HTTPException(status_code=503, detail="ORCID service unavailable")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"ORCID sync failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="ORCID sync failed")
 
 @app.post("/api/ai/analyze-condition")
 async def analyze_condition(request: AIAnalysisRequest):

@@ -11,9 +11,9 @@ class AIService:
         """Load API key from environment"""
         self.api_key = os.getenv("GOOGLE_AI_API_KEY")
         if not self.api_key:
-            print("WARNING: GOOGLE_AI_API_KEY not found!")
+            print("WARNING: GOOGLE_AI_API_KEY not found - using fallback responses")
         else:
-            print(f"Configuring Gemini with API key: {self.api_key[:10]}...")
+            # API key loaded successfully
     
     def analyze_condition(self, condition_text: str) -> Dict[str, Any]:
         """Analyze patient condition input and extract structured data or answer questions"""
