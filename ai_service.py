@@ -13,7 +13,7 @@ class AIService:
         if not self.api_key:
             print("WARNING: GOOGLE_AI_API_KEY not found - using fallback responses")
         else:
-            # API key loaded successfully
+            pass  # API key loaded successfully
     
     def analyze_condition(self, condition_text: str) -> Dict[str, Any]:
         """Analyze patient condition input and extract structured data or answer questions"""
