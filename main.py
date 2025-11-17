@@ -197,12 +197,18 @@ async def get_clinical_trials(condition: Optional[str] = None, location: Optiona
                     elif any(term in condition_lower for term in ["neurofeedback", "adhd", "methylphenidate", "medication response"]):
                         # ADHD related search
                         related_match = any(term in title_lower or term in desc_lower for term in ["adhd", "neurofeedback", "amsterdam", "medication response"])
-                    elif any(term in condition_lower for term in ["brain stimulation", "depression", "ketamine", "psilocybin"]):
+                    elif any(term in condition_lower for term in ["brain stimulation", "depression", "ketamine", "psilocybin", "depressive", "tms", "deep brain"]):
                         # Depression related search
-                        related_match = any(term in title_lower or term in desc_lower for term in ["depression", "psilocybin", "therapy", "amsterdam"])
-                    elif any(term in condition_lower for term in ["bevacizumab", "glioma", "radiotherapy"]):
+                        related_match = any(term in title_lower or term in desc_lower for term in ["depression", "psilocybin", "therapy", "amsterdam", "ketamine", "tms", "deep brain stimulation", "treatment-resistant"])
+                    elif any(term in condition_lower for term in ["bevacizumab", "glioma", "radiotherapy", "proteomics", "recurrent"]):
                         # Glioma related search
-                        related_match = any(term in title_lower or term in desc_lower for term in ["bevacizumab", "glioma", "radiotherapy", "recurrent"])
+                        related_match = any(term in title_lower or term in desc_lower for term in ["bevacizumab", "glioma", "radiotherapy", "recurrent", "proteomics"])
+                    elif any(term in condition_lower for term in ["dopamine", "modulation", "amsterdam"]):
+                        # Enhanced ADHD dopamine search
+                        related_match = any(term in title_lower or term in desc_lower for term in ["dopamine", "modulation", "adhd", "amsterdam"])
+                    elif any(term in condition_lower for term in ["long-term", "outcomes", "treatment"]):
+                        # Long-term outcomes search
+                        related_match = any(term in title_lower or term in desc_lower for term in ["long-term", "outcomes", "treatment", "depression"])
                     
                     if direct_match or related_match:
                         filtered_trials.append(trial)
@@ -331,13 +337,13 @@ async def get_health_experts(specialty: Optional[str] = None, location: Optional
                         ) or any(
                             any(term in r.lower() for term in adhd_terms) for r in expert.get("research_interests", [])
                         ) or "netherlands" in expert.get("institution", "").lower()
-                    elif any(term in specialty_lower for term in ["brain stimulation", "depression", "ketamine", "neuroimaging", "netherlands"]):
+                    elif any(term in specialty_lower for term in ["brain stimulation", "depression", "ketamine", "neuroimaging", "netherlands", "depressive", "psilocybin", "amsterdam"]):
                         # This is depression related search
                         related_match = any(
                             any(term in s.lower() for term in depression_terms) for s in expert.get("specialties", [])
                         ) or any(
                             any(term in r.lower() for term in depression_terms) for r in expert.get("research_interests", [])
-                        ) or "netherlands" in expert.get("institution", "").lower()
+                        ) or "netherlands" in expert.get("institution", "").lower() or "amsterdam" in expert.get("institution", "").lower()
                     
                     if direct_match or related_match:
                         filtered_experts.append(expert)
@@ -600,13 +606,13 @@ async def get_collaborators(specialty: Optional[str] = None, research_interest: 
                         ) or any(
                             any(term in r.lower() for term in ["proteomics", "recurrent glioma", "drug discovery"]) for r in researcher.get("research_interests", [])
                         )
-                    elif any(term in specialty_lower for term in ["neuroimaging", "depression", "netherlands"]):
+                    elif any(term in specialty_lower for term in ["neuroimaging", "depression", "netherlands", "amsterdam", "psilocybin", "ketamine", "brain stimulation"]):
                         # This is depression/neuroimaging related search
                         related_match = any(
                             any(term in s.lower() for term in ["psychiatry", "neuroimaging", "clinical psychology"]) for s in researcher.get("specialties", [])
                         ) or any(
-                            any(term in r.lower() for term in ["depression", "brain stimulation", "cognitive therapy"]) for r in researcher.get("research_interests", [])
-                        ) or "netherlands" in researcher.get("institution", "").lower()
+                            any(term in r.lower() for term in ["depression", "brain stimulation", "cognitive therapy", "long-term outcomes"]) for r in researcher.get("research_interests", [])
+                        ) or "netherlands" in researcher.get("institution", "").lower() or "amsterdam" in researcher.get("institution", "").lower()
                     
                     if direct_match or related_match:
                         filtered_collaborators.append(researcher)
